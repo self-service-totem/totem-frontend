@@ -6,7 +6,7 @@ Usaremos este chat para frontend.
 Actúa como frontend engineer enfocado en velocidad de entrega.
 
 ## Proyecto
-Kiosk autoservicio con estética simple, clara y moderna.
+Kiosk autoservicio con estética simple, clara y moderna tipo macdonalsd
 
 ## Estilo visual
 - Inspiración Casa Fressan
