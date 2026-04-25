@@ -3,6 +3,14 @@ name: Deploy Frontend
 on:
   workflow_dispatch:
     inputs:
+      source_branch:
+        description: "Branch to deploy"
+        required: true
+        type: choice
+        options:
+          - dev
+          - main
+
       release_version:
         description: "Release version. Example: v1.0.0"
         required: true
@@ -49,9 +57,15 @@ jobs:
             exit 1
           fi
 
+          if [ "${{ inputs.target }}" = "prod" ] && [ "${{ inputs.source_branch }}" != "main" ]; then
+            echo "Production deployments must come from main."
+            exit 1
+          fi
+
       - name: Checkout selected branch
         uses: actions/checkout@v4
         with:
+          ref: ${{ inputs.source_branch }}
           fetch-depth: 0
 
       - name: Validate tag does not exist
@@ -61,24 +75,15 @@ jobs:
             exit 1
           fi
 
-      - name: Create and push tag
-        run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-          git tag "${{ inputs.release_version }}"
-          git push origin "${{ inputs.release_version }}"
-
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
       - name: Install dependencies
-        working-directory: totem-frontend
         run: npm ci
 
       - name: Build frontend
-        working-directory: frontend     
         run: npm run build
 
       - name: Configure AWS credentials
@@ -97,3 +102,10 @@ jobs:
           aws cloudfront create-invalidation \
             --distribution-id ${{ vars.CLOUDFRONT_DISTRIBUTION_ID }} \
             --paths "/*"
+
+      - name: Create and push tag
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git tag "${{ inputs.release_version }}"
+          git push origin "${{ inputs.release_version }}"
