@@ -74,9 +74,11 @@ jobs:
           node-version: 20
 
       - name: Install dependencies
+        working-directory: totem-frontend
         run: npm ci
 
       - name: Build frontend
+        working-directory: frontend     
         run: npm run build
 
       - name: Configure AWS credentials
